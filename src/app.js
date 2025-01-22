@@ -2,6 +2,41 @@ const express = require("express");
 
 const app = express(); //creating a new express js application or instance of an express js application
 
+/***********************Middleware & Error Handling ************************/
+//you are handle multiple rotes handler
+//app.use("/route", RH1, RH2, RH3, RH4) // you passing like this
+//app.use("/route", [RH1, RH2, RH3, RH4]) // you passing like this
+//app.use("/route", [RH1, RH2], RH3, RH4) // you passing like this all give the same output
+
+app.use("/user", 
+    [(req, res, next) => {   
+    console.log("Handling the router user"); 
+    //res.send("Response!");
+    next(); // help to move the another response 
+    
+},
+(req, res, next) => {
+    console.log("Handling the router user 2");  
+    //res.send("Response 2!");
+    next();  
+},
+(req, res, next) => {
+    console.log("Handling the router user 3");  
+    //res.send("Response 3!");
+    next();
+},
+(req, res, next) => {
+    console.log("Handling the router user 4");  
+    res.send("Response 4!");
+}] // we are wrapping all these function inside array.
+);
+
+
+
+
+/***********************************/
+
+
 //Request Handler
 // Here the code of the code is very very important and order of routhing matters alot .
 // app.use("/", (req, res) => {    //This code overight everything or its kind of like a wild card.
@@ -9,6 +44,7 @@ const app = express(); //creating a new express js application or instance of an
 //  })
 
 
+/*******************Dynamic Routing****************
 app.get("/user/:userId", (req, res) => {   // : means its a dynamic routes
     console.log(req.params);  //This will give the information of query perameter which is present on the URL. This is basically used for the 
     res.send({"Name": "Kanchan", "Lastname": "Sah"});
