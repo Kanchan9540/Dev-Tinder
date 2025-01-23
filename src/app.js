@@ -2,39 +2,92 @@ const express = require("express");
 
 const app = express(); //creating a new express js application or instance of an express js application
 
+//import
+const { AdminAuth, UserAuth } = require("./middlewares/auth");
+
 /***********************Middleware & Error Handling ************************/
 //you are handle multiple rotes handler
 //app.use("/route", RH1, RH2, RH3, RH4) // you passing like this
 //app.use("/route", [RH1, RH2, RH3, RH4]) // you passing like this
 //app.use("/route", [RH1, RH2], RH3, RH4) // you passing like this all give the same output
 
-app.use("/user", 
-    [(req, res, next) => {   
-    console.log("Handling the router user"); 
-    //res.send("Response!");
-    next(); // help to move the another response 
+
+/**********Middleware for Authorization************/
+// handle auth middleware for all request GET, POST & etc.
+app.use("/admin", AdminAuth);  
+//app.use("/user", UserAuth); 
+
+app.get("/admin/getAllData", (req, res) => { 
+        res.send("All Data Send"); 
+}),
+
+app.get("/admin/DeleteUser", (req, res) => {   
+   res.send("Delete a user");  
+}),
+
+app.get("/user/login", (req, res) => {  // here we didn't need authentication or autharization. 
+    res.send("user logged in successfully");  
+ }),
+
+app.get("/user/data", UserAuth, (req, res) => {  // here firstly user auth is getting checked. here Userauth is middleware 
+    res.send("user Data sent");  
+ }),
+
+
+
+
+
+/*!!!!!!!!!!!!!!!!!!!!!!!!!*/
+
+
+
+
+// app.use("/user",
+//     [(req, res, next) => {   
+//     console.log("Handling the router user"); 
+//     //res.send("Response!");
+//     next(); // help to move the another response 
     
-},
-(req, res, next) => {
-    console.log("Handling the router user 2");  
-    //res.send("Response 2!");
-    next();  
-},
-(req, res, next) => {
-    console.log("Handling the router user 3");  
-    //res.send("Response 3!");
-    next();
-},
-(req, res, next) => {
-    console.log("Handling the router user 4");  
-    res.send("Response 4!");
-}] // we are wrapping all these function inside array.
+// },
+// (req, res, next) => {
+//     console.log("Handling the router user 2");  
+//     //res.send("Response 2!");
+//     next();  
+// },
+// (req, res, next) => {
+//     console.log("Handling the router user 3");  
+//     //res.send("Response 3!");
+//     next();
+// },
+// (req, res, next) => {
+//     console.log("Handling the router user 4");  
+//     res.send("Response 4!");
+// }] // we are wrapping all these function inside array.
+// );
+
+/*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
+// order of code is matter here
+
+//GET /users => It checks all the app.xxxx("matching routes") functions
+//GET /users => middleware chain => request handler
+ app.get("/user", (req, res, next) => {   
+     console.log("Handling the router user"); 
+    //res.send("Response!");
+     next(); // help to move the another response 
+    
+ }),
+ app.get("/user",
+    (req, res, next) => {  // these function are known as middleware
+     console.log("Handling the router user 2");  
+     res.send("Response 2!");
+      next();  
+ }
 );
 
 
 
 
-/***********************************/
+/*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
 
 
 //Request Handler
