@@ -5,6 +5,31 @@ const app = express(); //creating a new express js application or instance of an
 //import
 const { AdminAuth, UserAuth } = require("./middlewares/auth");
 
+
+/*********************Error Handling **********************/
+app.get("/getAllData", (req, res) => { 
+
+    try{
+    //logic of DB call and get user data
+    throw new Error("sgvvn");
+    res.send("All Data Send"); 
+    }
+    catch (err){
+        res.status(500).send("some error contact support team");  //Handle error using try & catch
+    }
+    
+    
+});
+
+app.use("/", (err, req, res, next) => {  // here orders matter alot 
+    if(err){  // here we handle the error gracefully
+        res.status(500).send("something went wrong");  
+    }
+
+})
+
+
+
 /***********************Middleware & Error Handling ************************/
 //you are handle multiple rotes handler
 //app.use("/route", RH1, RH2, RH3, RH4) // you passing like this
