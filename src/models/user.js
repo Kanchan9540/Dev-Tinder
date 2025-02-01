@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const UserSchema = new mongoose.Schema({  // passing object here or passing all the perameters that defines a user.
    firstName: {   // define schema its also tells the type of data.
@@ -16,6 +17,11 @@ const UserSchema = new mongoose.Schema({  // passing object here or passing all 
       lowercase: true,
       unique: true,
       trim: true,  // remove extra wide space in front or back
+      validate(value){
+        if(!validator.isEmail(value)){
+         throw new Error("invalid email address: " + value);
+        }
+      }
    },
    password: {
       type: String,
@@ -36,6 +42,11 @@ const UserSchema = new mongoose.Schema({  // passing object here or passing all 
    photoUrl: {
       type: String,
       default: "https://avatars.githubusercontent.com/u/7790161?v=4",
+      validate(value){
+         if(!validator.isURL(value)){
+          throw new Error("invalid URL address: " + value);
+         }
+       },
    },
    about: {
       type: String,
