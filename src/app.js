@@ -1,15 +1,17 @@
 const express = require("express");
 const connectDB = require("./config/database");  // require database file
 const User = require("./models/user");
+const {validateSignUpData} = require("./config/utils/validation");
+const bcrypt = require("bcrypt");
 
 const app = express(); //creating a new express js application or instance of an express js application
 
 
-// const { AdminAuth, UserAuth } = require("./middlewares/auth");
+//** const { AdminAuth, UserAuth } = require("./middlewares/auth");
 
 app.use(express.json()); //this middleware is activated for all the routes. and convert all the json data into a js object
 
-/************************Database schema ******************************** */
+//************************Database schema ******************************** */
 //create a API to insert a data into database
 app.post("/signup", async (req, res) => {
 
@@ -22,19 +24,52 @@ app.post("/signup", async (req, res) => {
   //   "password": "virat1234"
   //  }); // creating a new user with this upper data or in technically we can say that the we are creating a new instance of a user model.
 
-  //create a new instance of the user model using this data which we are got from the API.
-  const user = new User(req.body);
-
   try{
+  //Validation of data
+  validateSignUpData(req); // whatever the request is comming we are validating to here.
+
+  const {firstName, lastName,emailId, password} = req.body;  //extracting the things out.
+ 
+  // Encrypt the password*******************
+  const passwordHash = await bcrypt.hash(password, 10);  //more the number of salt round toufghest the password to decrypt. or 10 => saltRound
+  console.log(passwordHash);  // creating the password hash
+
+  //create a new instance of the user model using this data which we are got from the API.
+  const user = new User({firstName, lastName, emailId, password:passwordHash}); // only these fields are allowed. 
+
     await user.save();  // data will save inside a database. and thisfunction basically return you a function.
     res.send("user added successfully"); //sending back to the response.
   } catch(err){
-    res.status(400).send("Error saving the user : " + err.message);
+    res.status(400).send("Error : " + err.message);
   }
  });
 
 
-//GET user by email 
+//*****************login API *****************/
+app.post("/login", async (req, res) => {
+    
+    try{
+        const {emailId, password} = req.body;
+        
+        const user = await User.findOne({emailId: emailId});
+        if(!user){
+            throw new Error("Invalid Credentials");
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if(isPasswordValid){
+            res.send("Login Successfully!!!!");
+        }
+        else{
+            throw new Error("Invalid Credentials")
+        }
+
+    } catch (err){
+      res.status(400).send("ERROR: " + err.message);
+    }
+});    
+
+//**GET user by email 
 app.get("/user", async (req, res) => {
     const useEmail = req.body.emailId;
 
@@ -64,7 +99,7 @@ app.get("/user", async (req, res) => {
 });
 
 
- //Feed API - GET/feed - get all the user from the database
+ //**Feed API - GET/feed - get all the user from the database
  app.get("/feed", async (req, res) => {
     try{
         const users = await User.find({});
@@ -76,7 +111,7 @@ app.get("/user", async (req, res) => {
 
  });
 
-//Delete Data from the Database
+//**Delete Data from the Database
 app.delete("/user", async (req, res) => {
     const userId = req.body.userId;
     try{
@@ -89,7 +124,7 @@ app.delete("/user", async (req, res) => {
       }
 })
 
-// Update data of the user
+//** Update data of the user
 app.patch("/user/:userId", async (req, res) => {
     // const userId = req.body.userId;
     const userId = req.params?.userId;
