@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const UserSchema = new mongoose.Schema({  // passing object here or passing all the perameters that defines a user.
    firstName: {   // define schema its also tells the type of data.
@@ -61,6 +63,28 @@ const UserSchema = new mongoose.Schema({  // passing object here or passing all 
    timestamps: true,   // its give the update as well as create time
 }
 );  //Schema basically tells you what all information about the user storing into our database.
+
+UserSchema.methods.getJWT = async function (){
+   const user = this;
+
+  const token = await jwt.sign({_id: user._id}, "dev@Tinder95", {
+   expiresIn: "7d"
+});
+   return token;
+}
+
+UserSchema.methods.validatePassword = async function (passwordInputByUser){
+   const user = this;
+   const passwordHash = user.password;
+
+   const isPasswordValid = await bcrypt.compare(passwordInputByUser, passwordHash);
+   return isPasswordValid;
+
+}; 
+
+
+
+
 
 // create mongoose model
 const UserModel = mongoose.model("User", UserSchema); // here we passingthe name of the model & name of the schema.
