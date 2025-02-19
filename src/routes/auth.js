@@ -6,6 +6,8 @@ const {validateSignUpData} = require("../config/utils/validation");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 
+
+
 //************************Database schema/ Signup API******************************** */
 //create a API to insert a data into database //**app.use == router.use both are almost similar */
 authRouter.post("/signup", async (req, res) => {
@@ -61,6 +63,14 @@ authRouter.post("/login", async (req, res) => {
       res.status(400).send("ERROR: " + err.message);
     }
 }); 
+
+//******************logout API************/
+authRouter.post("/logout", async (req, res) => {
+  res.cookie("token", null, {  //setting cokkie token to null
+    expires: new Date(Date.now()),
+  });
+  res.send("Logout Successfully");
+})
 
 
 
