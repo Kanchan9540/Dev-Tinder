@@ -23,7 +23,7 @@ const UserSchema = new mongoose.Schema({  // passing object here or passing all 
         if(!validator.isEmail(value)){
          throw new Error("invalid email address: " + value);
         }
-      }
+      },
    },
    password: {
       type: String,
@@ -35,11 +35,15 @@ const UserSchema = new mongoose.Schema({  // passing object here or passing all 
    },
    gender: {
     type: String,
-    validate(value){   //custom validate function
-       if(!["male", "female", "other"].includes(value)){
-          throw new Error("gender is not valid");
-       }
-    },
+    enum: {
+      values: ["male", "female", "other"],
+      message: `{VALUE} is not a valid gender type`,
+    }
+   //  validate(value){   //custom validate function
+   //     if(!["male", "female", "other"].includes(value)){
+   //        throw new Error("gender is not valid");
+   //     }
+   //  },
    },
    photoUrl: {
       type: String,
@@ -81,6 +85,8 @@ UserSchema.methods.validatePassword = async function (passwordInputByUser){
    return isPasswordValid;
 
 }; 
+
+module.exports = mongoose.model("User", UserSchema)
 
 
 

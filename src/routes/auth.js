@@ -23,7 +23,12 @@ authRouter.post("/signup", async (req, res) => {
     console.log(passwordHash);  // creating the password hash
   
     //create a new instance of the user model using this data which we are got from the API.
-    const user = new User({firstName, lastName, emailId, password:passwordHash}); // only these fields are allowed. 
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password:passwordHash
+    }); // only these fields are allowed. 
   
       await user.save();  // data will save inside a database. and thisfunction basically return you a function.
       res.send("user added successfully"); //sending back to the response.
