@@ -3,13 +3,16 @@ const connectDB = require("./config/database");  // require database file
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
-
 const app = express(); //creating a new express js application or instance of an express js application
 
 
 //** const { AdminAuth, UserAuth } = require("./middlewares/auth");
 
-app.use(cors());
+app.use(cors({
+    origin: ["http://localhost:5173"], // Ensure no trailing slash
+    credentials: true,
+}));
+
 app.use(express.json()); //this middleware is activated for all the routes. and convert all the json data into a js object
 app.use(cookieParser());
 
