@@ -21,23 +21,38 @@ module.exports = profileRouter;
 
 //**************Profile Edit ******************/
 profileRouter.patch("/profile/edit", UserAuth, async (req, res) => {
-   try{
-    if(!validateEditProfileData(req)){
-        throw new Error("Invalid Edit Request");
-    }
+  try {
+      //console.log("📩 Received request body:", req.body); // Log request data
+
+      if (!req.body || Object.keys(req.body).length === 0) {
+          return res.status(400).json({ error: "Request body cannot be empty" });
+      }
+
       const loggedInUser = req.user;
-      Object.keys(req.body).forEach((key) => (loggedInUser[key] = req.body[key]));
-      
+      //console.log("👤 Current User:", loggedInUser); // Log current user data
+
+      if (!loggedInUser) {
+          return res.status(400).json({ error: "User not found" });
+      }
+
+      // Ensure only defined values are updated
+      Object.keys(req.body).forEach((key) => {
+          if (req.body[key] !== undefined) {
+              loggedInUser[key] = req.body[key];
+          }
+      });
+
       await loggedInUser.save();
 
       res.json({
-        message: `${loggedInUser.firstName}, your profile edit successsfully`,
-        data: loggedInUser,
+          message: `${loggedInUser.firstName}, your profile was edited successfully`,
+          data: loggedInUser,
       });
-   }
-   catch(err){
-    res.status(400).send("ERROR :" + err.message);
-   }
+  } catch (err) {
+      console.error("🔥 Error in profile update:", err); // Log backend errors
+      res.status(400).json({ error: err.message });
+  }
 });
+
 
 module.exports = profileRouter;
