@@ -30,8 +30,14 @@ authRouter.post("/signup", async (req, res) => {
       password:passwordHash
     }); // only these fields are allowed. 
   
-      await user.save();  // data will save inside a database. and thisfunction basically return you a function.
-      res.send("user added successfully"); //sending back to the response.
+    const savedUser = await user.save();  // data will save inside a database. and thisfunction basically return you a function.
+    const token = await savedUser.getJWT();
+
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 8 * 3600000),
+    });
+
+    res.json({ message: "User Added successfully!", data: savedUser }); //sending back to the response.
     } catch(err){
       res.status(400).send("Error : " + err.message);
     }
@@ -49,19 +55,14 @@ authRouter.post("/login", async (req, res) => {
         }
 
         const isPasswordValid = await user.validatePassword(password);
+        
         if(isPasswordValid){
-
         // create a JWT Token
         const token = await user.getJWT();
        
-        
-        
-        
-
         //Add the token to cookie and send the response back to the user.
         res.cookie("token", token, {expires: new Date(Date.now() + 8 * 3600000)});  // I will send this token back to the user.
         res.send(user);
-        
         }
         else{
             throw new Error("Invalid Credentials")
